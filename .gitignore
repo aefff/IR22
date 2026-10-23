@@ -1,0 +1,11 @@
+# colcon 编译产物
+build/
+install/
+log/
+# Python 缓存
+__pycache__/
+*.pyc
+# 编辑器个人设置
+.vscode/
+# 暂时不上传 B
+warehouse_b.sdf
