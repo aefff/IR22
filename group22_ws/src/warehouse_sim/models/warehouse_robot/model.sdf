@@ -4,7 +4,10 @@
      thermal camera (/thermal/image_raw).
      Body: cylinder r 0.18, 0.06-0.17 m above ground. Wheels r 0.08,
      separation 0.34. Lidar scan plane at z = 0.21 m (below the 0.3 m
-     rack bases). Model origin = base_link, on the ground between the wheels. -->
+     rack bases). Model origin = base_link, on the ground between the wheels.
+     Each sensor sets both <frame_id> (read by Gazebo Ionic/Jetty, SDF 1.12+)
+     and <gz_frame_id> (read by Gazebo Harmonic). Jetty prints a harmless
+     "gz_frame_id not defined" warning; do not remove either tag. -->
 <sdf version="1.9">
   <model name="warehouse_robot">
 
@@ -162,6 +165,7 @@
       </visual>
       <sensor name="lidar" type="gpu_lidar">
         <topic>scan</topic>
+        <frame_id>lidar_link</frame_id>
         <gz_frame_id>lidar_link</gz_frame_id>
         <update_rate>10</update_rate>
         <always_on>true</always_on>
@@ -212,6 +216,7 @@
       </visual>
       <sensor name="rgb_camera" type="camera">
         <topic>camera/image_raw</topic>
+        <frame_id>camera_link</frame_id>
         <gz_frame_id>camera_link</gz_frame_id>
         <update_rate>15</update_rate>
         <always_on>true</always_on>
@@ -253,6 +258,7 @@
            everything else reads as ambient. 8-bit output, 3 K per grey level. -->
       <sensor name="thermal_camera" type="thermal">
         <topic>thermal/image_raw</topic>
+        <frame_id>thermal_link</frame_id>
         <gz_frame_id>thermal_link</gz_frame_id>
         <update_rate>10</update_rate>
         <always_on>true</always_on>
