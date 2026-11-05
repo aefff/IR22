@@ -34,7 +34,7 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'hazard_spawner = warehouse.hazard_spawner:main',
+            'hazard_spawner = warehouse_sim.hazard_spawner:main',
         ],
     },
 )
