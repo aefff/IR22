@@ -17,6 +17,8 @@ setup(
         (os.path.join('share', package_name, 'launch'), glob('launch/*.py')),
         (os.path.join('share', package_name, 'models', 'warehouse_robot'),
             glob('models/warehouse_robot/*')),
+        (os.path.join('share', package_name, 'models', 'fire'),
+            glob('models/fire/*')),
     ],
     package_data={'': ['py.typed']},
     install_requires=['setuptools'],
@@ -32,6 +34,7 @@ setup(
     },
     entry_points={
         'console_scripts': [
+            'hazard_spawner = warehouse.hazard_spawner:main',
         ],
     },
 )
