@@ -35,6 +35,7 @@ setup(
     entry_points={
         'console_scripts': [
             'hazard_spawner = warehouse_sim.hazard_spawner:main',
+            'fire_detection = warehouse_sim.fire_detection:main',
         ],
     },
 )
