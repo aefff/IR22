@@ -6,8 +6,11 @@ from ros_stand_ins import (
     import_or_stand_in,
     is_stand_in,
     require_ros_from_environment,
+    ROS_STAND_INS,
     StubCvBridge,
+    StubInterfaceMessage,
     StubNode,
+    StubQoSProfile,
 )
 
 STAND_INS = {'g22_fake_ros': {}, 'g22_fake_ros.node': {'Node': StubNode}}
@@ -89,7 +92,16 @@ def test_strict_mode_rejects_ambiguous_values(value):
         require_ros_from_environment({'WAREHOUSE_SIM_REQUIRE_ROS': value})
 
 
-@pytest.mark.parametrize('stand_in', [StubNode, StubCvBridge])
+@pytest.mark.parametrize('stand_in', [
+    StubNode, StubCvBridge, StubQoSProfile, StubInterfaceMessage,
+])
 def test_stand_in_constructors_refuse_to_pretend(stand_in):
     with pytest.raises(RuntimeError):
         stand_in('fire_detection')
+
+
+def test_generated_interface_package_has_only_unconstructible_stand_ins():
+    # Without a ROS build, no test can obtain a real-looking generated message.
+    attributes = ROS_STAND_INS['hazard_interfaces.msg']['hazard_interfaces.msg']
+    assert set(attributes) == {'ThermalFrameObservation', 'ThermalRegion'}
+    assert all(value is StubInterfaceMessage for value in attributes.values())

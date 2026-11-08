@@ -1,4 +1,5 @@
-"""Start a warehouse world, spawn the robot and bridge its topics to ROS 2.
+"""
+Start a warehouse world, spawn the robot and bridge its topics to ROS 2.
 
 Build the workspace first, then:
     ros2 launch warehouse_sim warehouse_robot.launch.py
@@ -19,7 +20,7 @@ from launch_ros.actions import Node
 
 
 def static_tf(child, x, y, z):
-    """Fixed sensor pose relative to base_link (same numbers as model.sdf)."""
+    """Return a static transform for a fixed sensor pose relative to base_link (as model.sdf)."""
     return Node(
         package='tf2_ros',
         executable='static_transform_publisher',
