@@ -23,12 +23,44 @@ class StubCvBridge:
         raise RuntimeError('cv_bridge is not installed: this CvBridge stand-in cannot be created')
 
 
+class StubQoSProfile:
+
+    def __init__(self, *args, **kwargs):
+        raise RuntimeError('rclpy is not installed: this QoSProfile stand-in cannot be created')
+
+
+class StubInterfaceMessage:
+    """Stands in for generated hazard_interfaces messages; never constructible."""
+
+    def __init__(self, *args, **kwargs):
+        raise RuntimeError(
+            'hazard_interfaces is not built: generated messages are unavailable, '
+            'so this stand-in cannot be created',
+        )
+
+
 # Module to import -> stand-in modules (with attributes) to register if absent.
 ROS_STAND_INS = {
-    'rclpy.node': {'rclpy': {}, 'rclpy.node': {'Node': StubNode}},
+    'rclpy.node': {
+        'rclpy': {},
+        'rclpy.node': {'Node': StubNode},
+        'rclpy.qos': {
+            'QoSProfile': StubQoSProfile,
+            'DurabilityPolicy': object(),
+            'HistoryPolicy': object(),
+            'ReliabilityPolicy': object(),
+        },
+    },
     'sensor_msgs.msg': {'sensor_msgs': {}, 'sensor_msgs.msg': {'Image': object}},
     'cv_bridge': {
         'cv_bridge': {'CvBridge': StubCvBridge, 'CvBridgeError': StubCvBridgeError},
+    },
+    'hazard_interfaces.msg': {
+        'hazard_interfaces': {},
+        'hazard_interfaces.msg': {
+            'ThermalFrameObservation': StubInterfaceMessage,
+            'ThermalRegion': StubInterfaceMessage,
+        },
     },
 }
 
@@ -44,6 +76,11 @@ def require_ros_from_environment(environ=os.environ):
 def is_stand_in(module):
     """Return True if ``module`` is a stand-in registered by this helper."""
     return bool(getattr(module, '__ros_test_stub__', False))
+
+
+def any_stand_ins_installed():
+    """Return True if any module that fire_detection needs is a stand-in."""
+    return any(is_stand_in(sys.modules.get(name)) for name in ROS_STAND_INS)
 
 
 def import_or_stand_in(module_name, stand_ins, *, require_real):

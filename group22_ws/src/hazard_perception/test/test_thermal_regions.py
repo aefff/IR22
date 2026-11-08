@@ -1,5 +1,3 @@
-"""Synthetic-image tests for hazard_perception.thermal_regions (no ROS required)."""
-
 import dataclasses
 import json
 
