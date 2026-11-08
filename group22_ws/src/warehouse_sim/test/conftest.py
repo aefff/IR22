@@ -1,0 +1,3 @@
+from ros_stand_ins import install_ros_stand_ins, require_ros_from_environment
+
+install_ros_stand_ins(require_real=require_ros_from_environment())

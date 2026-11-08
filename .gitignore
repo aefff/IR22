@@ -9,3 +9,5 @@ __pycache__/
 .vscode/
 # 暂时不上传 B
 warehouse_b.sdf
+# Virtual environment
+.venv/
