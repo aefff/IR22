@@ -8,6 +8,7 @@
     <!-- Needed for the robot's lidar and cameras to produce data -->
     <plugin filename="gz-sim-sensors-system" name="gz::sim::systems::Sensors">
       <render_engine>ogre2</render_engine>
+    <plugin filename="hazard_heat_manager" name="warehouse_sim::HazardHeatManager"/>
     </plugin>
 
     <light type="directional" name="sun">

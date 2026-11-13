@@ -10,12 +10,12 @@ works on any machine (Jazzy/Harmonic or Lyrical/Jetty) without editing.
 """
 import os
 
-from ament_index_python.packages import get_package_share_directory
+from ament_index_python.packages import get_package_prefix, get_package_share_directory
 
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, SetEnvironmentVariable
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
+from launch.substitutions import EnvironmentVariable, LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import Node
 
 
@@ -34,7 +34,9 @@ def static_tf(child, x, y, z):
 def generate_launch_description():
     pkg_share = get_package_share_directory('warehouse_sim')
     robot_sdf = os.path.join(pkg_share, 'models', 'warehouse_robot', 'model.sdf')
-
+    plugin_prefix = get_package_prefix('warehouse_hazards')
+    plugin_dir = os.path.join(plugin_prefix, 'lib')
+    
     # Which world to load and where the robot starts
     args = [
         DeclareLaunchArgument('world', default_value='warehouse_a.sdf',
@@ -42,6 +44,9 @@ def generate_launch_description():
         DeclareLaunchArgument('x', default_value='-4.0'),
         DeclareLaunchArgument('y', default_value='0.0'),
         DeclareLaunchArgument('yaw', default_value='0.0'),
+        SetEnvironmentVariable('GZ_SIM_SYSTEM_PLUGIN_PATH',
+                               [plugin_dir, ':', EnvironmentVariable(
+                                   'GZ_SIM_SYSTEM_PLUGIN_PATH', default_value='')]),
     ]
     world = PathJoinSubstitution([pkg_share, 'worlds', LaunchConfiguration('world')])
 
@@ -77,7 +82,21 @@ def generate_launch_description():
             '/camera/camera_info@sensor_msgs/msg/CameraInfo[gz.msgs.CameraInfo',
             '/thermal/image_raw@sensor_msgs/msg/Image[gz.msgs.Image',
             '/thermal/camera_info@sensor_msgs/msg/CameraInfo[gz.msgs.CameraInfo',
+            '/hazards/discovered@std_msgs/msg/String]gz.msgs.StringMsg'
         ],
+        parameters=[{'use_sim_time': True}],
+        output='screen',
+    )
+    
+    hazard_spawner = Node(
+        package='warehouse_sim',
+        executable='hazard_spawner',
+        output='screen'
+    )
+    
+    fire_detection = Node(
+        package='warehouse_sim',
+        executable='fire_detection',
         parameters=[{'use_sim_time': True}],
         output='screen',
     )
@@ -86,6 +105,8 @@ def generate_launch_description():
         gz_sim,
         spawn,
         bridge,
+        hazard_spawner,
+        fire_detection,
         static_tf('lidar_link', 0.0, 0.0, 0.21),
         static_tf('camera_link', 0.185, 0.04, 0.13),
         static_tf('thermal_link', 0.185, -0.04, 0.13),

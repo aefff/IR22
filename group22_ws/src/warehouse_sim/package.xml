@@ -12,12 +12,18 @@
   <exec_depend>launch_ros</exec_depend>
   <exec_depend>ros_gz_sim</exec_depend>
   <exec_depend>ros_gz_bridge</exec_depend>
+  <exec_depend>rosgraph_msgs</exec_depend>
   <exec_depend>tf2_ros</exec_depend>
   <exec_depend>cv_bridge</exec_depend>
   <exec_depend>hazard_interfaces</exec_depend>
   <exec_depend>hazard_perception</exec_depend>
   <exec_depend>rclpy</exec_depend>
+  <exec_depend>opencv</exec_depend>
   <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>
+  <exec_depend>nav_msgs</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
+  <exec_depend>warehouse_hazards</exec_depend>
 
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>
