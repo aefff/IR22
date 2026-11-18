@@ -101,12 +101,21 @@ def generate_launch_description():
         output='screen',
     )
 
+    # Simulation only: uses ground-truth hazard poses to drive the heat manager.
+    hazard_discovery = Node(
+        package='warehouse_sim',
+        executable='hazard_discovery',
+        parameters=[{'use_sim_time': True}],
+        output='screen',
+    )
+
     return LaunchDescription(args + [
         gz_sim,
         spawn,
         bridge,
         hazard_spawner,
         fire_detection,
+        hazard_discovery,
         static_tf('lidar_link', 0.0, 0.0, 0.21),
         static_tf('camera_link', 0.185, 0.04, 0.13),
         static_tf('thermal_link', 0.185, -0.04, 0.13),

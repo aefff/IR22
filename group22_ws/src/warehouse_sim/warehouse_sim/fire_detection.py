@@ -1,6 +1,3 @@
-import math
-
-import cv2
 from cv_bridge import CvBridge, CvBridgeError
 from hazard_interfaces.msg import ThermalFrameObservation as ThermalFrameObservationMsg
 from hazard_perception.thermal_regions import (
@@ -34,15 +31,6 @@ class FireDetection(Node):
         super().__init__('fire_detection')
 
         self.bridge = CvBridge()
-        
-        self._hazards = []
-        self._odom = None
-        self._camera_info = None
-        self._reported = set()
-        self.discovery_publisher = self.create_publisher(String, '/hazards/discovered', 10)
-        self.create_subscription(PoseArray, '/hazards/poses', self._hazards_callback, 10)
-        self.create_subscription(Odometry, '/odom', self._odom_callback, 10)
-        self.create_subscription(CameraInfo, '/thermal/camera_info', self._camera_info_callback, 10)
 
         self.observation_publisher = self.create_publisher(
             ThermalFrameObservationMsg,
@@ -120,59 +108,8 @@ class FireDetection(Node):
             return None
 
         self.observation_publisher.publish(message)
-        self._detect_discovery(image)
         return observation
 
-    def _hazards_callback(self, msg: PoseArray):
-        self._hazards = [(pose.position.x, pose.position.y) for pose in msg.poses]
-
-    def _odom_callback(self, msg: Odometry):
-        self._odom = msg.pose.pose
-
-    def _camera_info_callback(self, msg: CameraInfo):
-        self._camera_info = msg
-
-    def _detect_discovery(self, image):
-        """Associate a sufficiently large hot region with a hazard by bearing."""
-        if self._odom is None or self._camera_info is None or not self._hazards:
-            return
-        binary = (image > HOT_PIXEL_THRESHOLD).astype('uint8')
-        count, labels, stats, centroids = cv2.connectedComponentsWithStats(binary, 8)
-        pose = self._odom
-        q = pose.orientation
-        yaw = math.atan2(2.0 * (q.w * q.z + q.x * q.y),
-                         1.0 - 2.0 * (q.y * q.y + q.z * q.z))
-        # The thermal lens sits slightly forward and to the right of base_link.
-        camera_x = pose.position.x + 0.185 * math.cos(yaw) + 0.04 * math.sin(yaw)
-        camera_y = pose.position.y + 0.185 * math.sin(yaw) - 0.04 * math.cos(yaw)
-        fx = self._camera_info.k[0] if len(self._camera_info.k) >= 1 else 0.0
-        width = self._camera_info.width or image.shape[1]
-        if fx <= 0.0 or width <= 0:
-            return
-        for component in range(1, count):
-            area = int(stats[component, cv2.CC_STAT_AREA])
-            if area < MIN_HOT_PIXELS:
-                continue
-            pixel_x = float(centroids[component][0])
-            # Pinhole projection; camera frame is aligned with the robot's +X.
-            region_bearing = math.atan2((pixel_x - (width - 1) / 2.0), fx)
-            candidates = []
-            for index, (hx, hy) in enumerate(self._hazards, start=1):
-                dx, dy = hx - camera_x, hy - camera_y
-                bearing = math.atan2(dy, dx) - yaw
-                bearing = math.atan2(math.sin(bearing), math.cos(bearing))
-                if abs(bearing - region_bearing) < 0.12:
-                    candidates.append((math.hypot(dx, dy), index))
-            if candidates:
-                _, index = min(candidates)
-                name = f'fire_hazard_{index:03d}'
-                if name not in self._reported:
-                    self._reported.add(name)
-                    event = String()
-                    event.data = name
-                    self.discovery_publisher.publish(event)
-                    self.get_logger().warning(f'FIRE HAZARD DISCOVERED: {name}')
-    
     def process_thermal_image(
         self,
         image,

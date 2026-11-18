@@ -24,7 +24,7 @@ class HazardSpawner(Node):
         delay = random.randint(30, 120)
 
         self.get_logger().info(f'Hazard will spawn in {delay} seconds')
-        self._spawn_timer = self.create_timer(delay,self.spawn_fire)
+        self._spawn_timer = self.create_timer(delay, self.spawn_fire)
 
     def spawn_fire(self):
 
@@ -35,7 +35,7 @@ class HazardSpawner(Node):
         name = f'fire_hazard_{len(self.hazards) + 1:03d}'
         temperature_c = random.uniform(100.0, 250.0)
         self.get_logger().info(f'Spawning {name} at x={x:.2f}, y={y:.2f}, {temperature_c:.1f} °C')
-        
+
         # Each name is unique so the world heat manager can match discovery events.
         with open(self.fire_model, encoding='utf-8') as model_file:
             model_sdf = model_file.read().replace(
@@ -55,15 +55,15 @@ class HazardSpawner(Node):
         if result.returncode:
             self.get_logger().error(f'Could not spawn {name}: {result.stderr.strip()}')
             return
-        
+
         self.hazards.append((x, y))
         self._publish_hazards()
         self.get_logger().warning(f'HAZARD SPAWNED: {name}')
-        
+
         # Preserve the original one-hazard-at-a-behaviour, with a new
         # random interval before each subsequent hazard.
         self._spawn_timer = self.create_timer(random.uniform(20.0, 60.0), self.spawn_fire)
-    
+
     def _publish_hazards(self):
         message = PoseArray()
         message.header.stamp = self.get_clock().now().to_msg()

@@ -280,3 +280,19 @@ def test_detector_publishes_one_observation_per_valid_frame_over_dds(ros_context
         for node in (detector, harness):
             if node is not None:
                 node.destroy_node()
+
+
+# Simulator ground truth may drive scenario management (hazard_discovery), but
+# never operational perception: the detector's only input is the thermal image.
+@requires_ros
+def test_detector_does_not_use_simulator_ground_truth(ros_context):
+    from warehouse_sim.fire_detection import FireDetection
+
+    detector = FireDetection()
+    try:
+        subscriptions = {s.topic_name for s in detector.subscriptions}
+        publishers = {p.topic_name for p in detector.publishers} - {'/parameter_events'}
+        assert subscriptions == {'/thermal/image_raw'}
+        assert publishers == {'/thermal/observations'}
+    finally:
+        detector.destroy_node()

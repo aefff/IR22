@@ -479,6 +479,15 @@ def test_conversion_error_is_a_value_error_subclass():
     assert issubclass(ObservationConversionError, ValueError)
 
 
+# --- Operational boundary ------------------------------------------------------
+
+def test_detector_has_no_ground_truth_or_second_extraction_path():
+    # Discovery against simulator ground truth lives in hazard_discovery; the
+    # detector extracts once (see test_extraction_and_conversion_run_once_per_frame).
+    for name in ('cv2', '_detect_discovery', 'PoseArray', 'Odometry'):
+        assert not hasattr(fire_detection, name) and not hasattr(FireDetection, name), name
+
+
 # --- Real ROS message conversion (skipped where ROS 2 is not sourced) -------
 
 @pytest.mark.skipif(ROS_STUBBED, reason='requires a sourced ROS 2 environment')
