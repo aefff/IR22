@@ -15,6 +15,7 @@ from ros_stand_ins import any_stand_ins_installed
 from warehouse_sim import thermal_observation_ros
 from warehouse_sim.thermal_observation_ros import (
     MAX_STAMP_NS,
+    message_to_observation,
     observation_to_message,
     ObservationConversionError,
     stamp_to_ns,
@@ -310,3 +311,76 @@ def test_region_dataclass_fields_are_all_converted():
 
     frame_fields = {f.name for f in dataclasses.fields(ThermalExtractionResult)}
     assert frame_fields == set(read_msg_fields('ThermalFrameObservation')) - {'header'}
+
+
+# --- Message -> observation (R3) --------------------------------------------------
+
+def test_message_to_observation_round_trip_preserves_everything(message_classes):
+    for stamp_ns in (0, 12_000_000_345, MAX_STAMP_NS):
+        observation = _two_region_observation(stamp_ns=stamp_ns)
+        assert message_to_observation(observation_to_message(observation)) == observation
+
+
+def test_message_to_observation_keeps_empty_frames_and_maps_empty_frame_id(message_classes):
+    image = np.full((240, 320), 96, dtype=np.uint8)
+    empty = ThermalFrameObservation(5, None, extract_thermal_regions(image))
+    restored = message_to_observation(observation_to_message(empty))
+    assert restored == empty
+    assert restored.extraction.regions == () and restored.source_frame_id is None
+
+
+def _message(**changes):
+    message = observation_to_message(_two_region_observation())
+    for path, value in changes.items():
+        target = message
+        *parents, name = path.split('.')
+        for parent in parents:
+            target = target[int(parent)] if parent.isdigit() else getattr(target, parent)
+        setattr(target, name, value)
+    return message
+
+
+@pytest.mark.parametrize('changes, field', [
+    ({'header.stamp.nanosec': 1_000_000_000}, 'timestamp'),
+    ({'header.stamp.sec': -1}, 'timestamp'),
+    ({'image_width': 0}, 'image_width'),
+    ({'threshold': 255}, 'threshold'),
+    ({'min_area_px': 0}, 'min_area_px'),
+    ({'connectivity': 6}, 'connectivity'),
+    ({'hot_pixel_count': 3}, 'hot_pixel_count'),  # regions cover 7 px
+    ({'hot_pixel_count': 8}, 'hot_pixel_count'),  # min_area_px=1: 1 hot px in no region
+    ({'hot_pixel_count': 320 * 240 + 1}, 'hot_pixel_count'),
+    ({'regions.0.area_px': 0}, r'regions\[0\]\.area_px'),
+    ({'regions.0.area_px': 7}, r'regions\[0\]\.area_px'),  # more than its 3 x 2 bbox
+    ({'regions.0.bbox_width': 0}, r'regions\[0\]\.bbox_width'),
+    ({'regions.1.max_intensity': 180}, r'regions\[1\]\.max_intensity'),  # not above threshold
+    ({'regions.1.mean_intensity': 201.0}, r'regions\[1\]\.mean_intensity'),  # above its max
+    ({'regions.1.mean_intensity': 180.0}, r'regions\[1\]\.mean_intensity'),  # not above threshold
+    ({'regions.0.centroid_x': float('nan')}, r'regions\[0\]\.centroid_x'),
+    ({'regions.0.centroid_y': float('inf')}, r'regions\[0\]\.centroid_y'),
+])
+def test_message_to_observation_rejects_invalid_content(message_classes, changes, field):
+    with pytest.raises(ObservationConversionError, match=field):
+        message_to_observation(_message(**changes))
+
+
+def test_hot_pixels_without_regions_are_rejected_when_nothing_is_filtered(message_classes):
+    # Codex counterexample: min_area_px=1, one hot pixel, no retained region.
+    image = np.full((240, 320), 96, dtype=np.uint8)
+    message = observation_to_message(
+        ThermalFrameObservation(5, 'thermal_link', extract_thermal_regions(image)))
+    assert (message.min_area_px, message.hot_pixel_count, len(message.regions)) == (1, 0, 0)
+    message.hot_pixel_count = 1
+    with pytest.raises(ObservationConversionError, match='every hot pixel'):
+        message_to_observation(message)
+
+
+def test_pixels_discarded_by_the_minimum_area_are_accepted(message_classes):
+    image = np.zeros((8, 12), dtype=np.uint8)
+    image[1, 1:4] = 200  # kept: 3 px
+    image[6, 9] = 200  # discarded by min_area_px=2: 1 px
+    filtered = ThermalFrameObservation(
+        7, 'thermal_link', extract_thermal_regions(image, min_area_px=2))
+    assert filtered.extraction.hot_pixel_count == 4
+    assert [r.area_px for r in filtered.extraction.regions] == [3]
+    assert message_to_observation(observation_to_message(filtered)) == filtered

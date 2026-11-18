@@ -109,6 +109,24 @@ def generate_launch_description():
         output='screen',
     )
 
+    # Camera rays in base_link from thermal observations, CameraInfo and TF.
+    # The -0.5 px principal-point shift and REP 103 body convention were
+    # validated in R1 for this robot's 320 x 240 thermal camera in gz-sim 8
+    # (hazard_perception/test/data/r1_thermal_geometry); re-validate them for
+    # any other camera or simulator version.
+    thermal_ray_localisation = Node(
+        package='warehouse_sim',
+        executable='thermal_ray_localisation',
+        parameters=[{
+            'use_sim_time': True,
+            'target_frame': 'base_link',
+            'camera_frame': 'thermal_link',
+            'principal_point_shift_px': -0.5,
+            'camera_frame_convention': 'rep103_body',
+        }],
+        output='screen',
+    )
+
     return LaunchDescription(args + [
         gz_sim,
         spawn,
@@ -116,6 +134,7 @@ def generate_launch_description():
         hazard_spawner,
         fire_detection,
         hazard_discovery,
+        thermal_ray_localisation,
         static_tf('lidar_link', 0.0, 0.0, 0.21),
         static_tf('camera_link', 0.185, 0.04, 0.13),
         static_tf('thermal_link', 0.185, -0.04, 0.13),

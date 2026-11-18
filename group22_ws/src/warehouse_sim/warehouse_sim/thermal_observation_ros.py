@@ -2,7 +2,11 @@ import math
 
 from hazard_interfaces.msg import ThermalFrameObservation as ThermalFrameObservationMsg
 from hazard_interfaces.msg import ThermalRegion as ThermalRegionMsg
-from hazard_perception.thermal_regions import ThermalFrameObservation, ThermalRegion
+from hazard_perception.thermal_regions import (
+    ThermalExtractionResult,
+    ThermalFrameObservation,
+    ThermalRegion,
+)
 
 NS_PER_SECOND = 1_000_000_000
 INT32_MIN = -2**31
@@ -15,7 +19,7 @@ MAX_STAMP_NS = INT32_MAX * NS_PER_SECOND + (NS_PER_SECOND - 1)
 
 
 class ObservationConversionError(ValueError):
-    """An observation value cannot be represented in the ROS message."""
+    """An observation cannot be converted to or from its ROS message."""
 
 
 def stamp_to_ns(stamp) -> int:
@@ -72,6 +76,78 @@ def observation_to_message(observation: ThermalFrameObservation) -> ThermalFrame
     frame_id = observation.source_frame_id
     message.header.frame_id = '' if frame_id is None else frame_id
     return message
+
+
+def message_to_observation(message) -> ThermalFrameObservation:
+    """
+    Convert a ``hazard_interfaces/ThermalFrameObservation`` into the dataclass.
+
+    The inverse of observation_to_message. Every value is checked against the
+    extractor's guarantees before any geometric use; a message that violates
+    them raises ``ObservationConversionError`` instead of becoming a (possibly
+    empty) observation. The stamp is validated, never normalised; zero is a
+    valid acquisition time. An empty frame_id becomes None. The retained
+    regions cannot cover more than hot_pixel_count pixels, and with
+    min_area_px == 1 (no component is discarded) they must cover exactly
+    hot_pixel_count. Region geometry (bbox, centroid, boundary flag) is checked
+    later, all or nothing, by hazard_perception.thermal_rays.observation_to_rays.
+    """
+    try:
+        stamp_ns = stamp_to_ns(message.header.stamp)
+    except (TypeError, ValueError) as error:
+        raise ObservationConversionError(f'invalid source timestamp: {error}') from None
+    width = _integer('image_width', message.image_width, 1, UINT32_MAX)
+    height = _integer('image_height', message.image_height, 1, UINT32_MAX)
+    threshold = _integer('threshold', message.threshold, 0, UINT8_MAX - 1)
+    min_area = _integer('min_area_px', message.min_area_px, 1, UINT32_MAX)
+    connectivity = _integer('connectivity', message.connectivity, 4, 8)
+    if connectivity not in (4, 8):
+        raise ObservationConversionError(f'connectivity={connectivity} must be 4 or 8')
+    hot = _integer('hot_pixel_count', message.hot_pixel_count, 0, width * height)
+    regions = tuple(_message_to_region(f'regions[{i}]', r, threshold, min_area)
+                    for i, r in enumerate(message.regions))
+    covered = sum(r.area_px for r in regions)
+    if covered > hot:
+        raise ObservationConversionError(
+            f'regions cover {covered} px but hot_pixel_count={hot}')
+    if min_area == 1 and covered != hot:
+        # The extractor keeps every connected component when min_area_px is 1.
+        raise ObservationConversionError(
+            f'regions cover {covered} px but hot_pixel_count={hot}; with min_area_px=1 '
+            'every hot pixel belongs to a retained region')
+    frame_id = message.header.frame_id
+    return ThermalFrameObservation(
+        source_stamp_ns=stamp_ns,
+        source_frame_id=frame_id if frame_id else None,
+        extraction=ThermalExtractionResult(
+            image_width=width, image_height=height, threshold=threshold,
+            min_area_px=min_area, connectivity=connectivity, hot_pixel_count=hot,
+            regions=regions,
+        ),
+    )
+
+
+def _message_to_region(name: str, region, threshold: int, min_area: int) -> ThermalRegion:
+    x = _integer(f'{name}.bbox_x', region.bbox_x, 0, UINT32_MAX)
+    y = _integer(f'{name}.bbox_y', region.bbox_y, 0, UINT32_MAX)
+    w = _integer(f'{name}.bbox_width', region.bbox_width, 1, UINT32_MAX)
+    h = _integer(f'{name}.bbox_height', region.bbox_height, 1, UINT32_MAX)
+    area = _integer(f'{name}.area_px', region.area_px, min_area, w * h)
+    peak = _integer(f'{name}.max_intensity', region.max_intensity, threshold + 1, UINT8_MAX)
+    mean = _finite_float(f'{name}.mean_intensity', region.mean_intensity)
+    if not threshold < mean <= peak:
+        raise ObservationConversionError(
+            f'{name}.mean_intensity={mean} must lie in ({threshold}, {peak}]')
+    return ThermalRegion(
+        bbox_xywh=(x, y, w, h),
+        centroid_xy=(_finite_float(f'{name}.centroid_x', region.centroid_x),
+                     _finite_float(f'{name}.centroid_y', region.centroid_y)),
+        area_px=area,
+        mean_intensity=mean,
+        max_intensity=peak,
+        touches_image_boundary=_boolean(
+            f'{name}.touches_image_boundary', region.touches_image_boundary),
+    )
 
 
 def _region_to_message(name: str, region: ThermalRegion) -> ThermalRegionMsg:

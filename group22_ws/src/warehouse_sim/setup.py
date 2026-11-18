@@ -37,6 +37,7 @@ setup(
             'hazard_spawner = warehouse_sim.hazard_spawner:main',
             'fire_detection = warehouse_sim.fire_detection:main',
             'hazard_discovery = warehouse_sim.hazard_discovery:main',
+            'thermal_ray_localisation = warehouse_sim.thermal_ray_localisation:main',
         ],
     },
 )
