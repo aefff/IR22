@@ -1,0 +1,1618 @@
+{
+ "notice": "EXPERIMENTAL VALIDATION DATA (R1). Simulator ground truth recorded for offline evaluation of camera geometry only. Never use it as an input to operational perception, localisation or decision-making.",
+ "recorded": "2026-11-18, isolated headless Gazebo session (GZ_PARTITION=r1_geometry, ROS_DOMAIN_ID=82, ROS_AUTOMATIC_DISCOVERY_RANGE=LOCALHOST)",
+ "provenance": "RE-RECORDING. The original R1 record (recorded 2026-11-17) was deleted during the hazard-localisation cleanup and could not be recovered without Git. This record was made on 2026-11-18 with the restored reproduce/ tooling (record_geometry.py, cases.json, hot_sphere.sdf, run.sh, each reconstructed from the development transcript), using the same procedure, robot configurations and targets. It is new data from the same procedure, not a copy of the original.",
+ "environment": {
+  "os": "Ubuntu 24.04.4 LTS on WSL2 (kernel 6.6.87.2-microsoft-standard-WSL2)",
+  "ros": "ROS 2 Jazzy: rclpy 7.1.12, ros_gz_bridge 1.0.24, ros_gz_sim 1.0.24, cv_bridge 4.1.0",
+  "gazebo": "gz-sim 8.15.0 (Harmonic), gz_sim_vendor 0.0.13",
+  "world": "warehouse_sim/worlds/warehouse_a.sdf (installed copy)",
+  "robot": "warehouse_sim/models/warehouse_robot/model.sdf (installed copy); thermal_link at (0.185, -0.04, 0.13), zero rotation, relative to the model"
+ },
+ "methodology": [
+  "Spawn the robot, a 0.05 m-radius static sphere at 600 K (reproduce/hot_sphere.sdf) and the warehouse fire model at 600 K (fire model with @INITIAL_TEMPERATURE_K@ = 600.0), both parked below the floor.",
+  "Bridge /clock, /tf, /odom, /thermal/image_raw and /thermal/camera_info; run a static base_link -> thermal_link transform with the launch-file arguments; run the installed operational fire_detection with use_sim_time.",
+  "For each case (reproduce/cases.json): read the robot model and thermal_link poses from /world/warehouse_a/pose/info, place the target with /world/warehouse_a/set_pose at the commanded camera-frame azimuth (az, + = left), elevation (el, + = up) and range (dist) from the lens (fire cone: base on the floor, horizontal range), then take the 5 /thermal/observations frames stamped at least 0.4 s of sim time after the move. u and v are the medians of the largest region centroid.",
+  "Read the true poses again after the measurement (robot_world, thermal_link_in_model, target_world: position [x, y, z], orientation [x, y, z, w]). Evaluation is offline: transform target_world into the thermal_link frame using these Gazebo poses (not /odom, which is not world-aligned).",
+  "Robot configurations: (-1, 0, yaw pi) facing the open west area, then (-1.5, -1, yaw 2.6). Robot stationary, no cmd_vel."
+ ],
+ "how_to_check": "hazard_perception/test/test_camera_geometry.py recomputes every comparison from raw_results; reproduce/run.sh re-records it.",
+ "raw_results": {
+  "camera_info": {
+   "frame_id": "thermal_link",
+   "width": 320,
+   "height": 240,
+   "distortion_model": "plumb_bob",
+   "d": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "k": [
+    277.19135641132203,
+    0.0,
+    160.0,
+    0.0,
+    277.19135641132203,
+    120.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "r": [
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "p": [
+    277.19135641132203,
+    0.0,
+    160.0,
+    0.0,
+    0.0,
+    277.19135641132203,
+    120.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0,
+    0.0
+   ]
+  },
+  "tf_base_to_thermal": {
+   "t": [
+    0.185,
+    -0.04,
+    0.13
+   ],
+   "q": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "stamp": 0.0
+  },
+  "tf_samples": [
+   {
+    "parent": "odom",
+    "child": "base_link",
+    "stamp": 10.343,
+    "clock": 10.385
+   },
+   {
+    "parent": "odom",
+    "child": "base_link",
+    "stamp": 10.393,
+    "clock": 10.393
+   },
+   {
+    "parent": "odom",
+    "child": "base_link",
+    "stamp": 10.443,
+    "clock": 10.443
+   },
+   {
+    "parent": "odom",
+    "child": "base_link",
+    "stamp": 10.493,
+    "clock": 10.493
+   },
+   {
+    "parent": "odom",
+    "child": "base_link",
+    "stamp": 10.543,
+    "clock": 10.543
+   },
+   {
+    "parent": "odom",
+    "child": "base_link",
+    "stamp": 10.593,
+    "clock": 10.592
+   },
+   {
+    "parent": "odom",
+    "child": "base_link",
+    "stamp": 10.643,
+    "clock": 10.643
+   },
+   {
+    "parent": "odom",
+    "child": "base_link",
+    "stamp": 10.693,
+    "clock": 10.694
+   },
+   {
+    "parent": "odom",
+    "child": "base_link",
+    "stamp": 10.743,
+    "clock": 10.743
+   },
+   {
+    "parent": "odom",
+    "child": "base_link",
+    "stamp": 10.793,
+    "clock": 10.793
+   },
+   {
+    "parent": "odom",
+    "child": "base_link",
+    "stamp": 10.843,
+    "clock": 10.843
+   },
+   {
+    "parent": "odom",
+    "child": "base_link",
+    "stamp": 10.893,
+    "clock": 10.893
+   },
+   {
+    "parent": "odom",
+    "child": "base_link",
+    "stamp": 10.943,
+    "clock": 10.943
+   },
+   {
+    "parent": "odom",
+    "child": "base_link",
+    "stamp": 10.993,
+    "clock": 10.992
+   },
+   {
+    "parent": "odom",
+    "child": "base_link",
+    "stamp": 11.043,
+    "clock": 11.043
+   },
+   {
+    "parent": "odom",
+    "child": "base_link",
+    "stamp": 11.093,
+    "clock": 11.093
+   },
+   {
+    "parent": "odom",
+    "child": "base_link",
+    "stamp": 11.143,
+    "clock": 11.143
+   },
+   {
+    "parent": "odom",
+    "child": "base_link",
+    "stamp": 11.193,
+    "clock": 11.193
+   },
+   {
+    "parent": "odom",
+    "child": "base_link",
+    "stamp": 11.243,
+    "clock": 11.243
+   },
+   {
+    "parent": "odom",
+    "child": "base_link",
+    "stamp": 11.293,
+    "clock": 11.293
+   }
+  ],
+  "cases": [
+   {
+    "kind": "target",
+    "label": "ahead",
+    "target": "r1_target",
+    "az": 0.0,
+    "el": 0.0,
+    "dist": 2.5,
+    "commanded_world": [
+     -3.6850000000000476,
+     0.0399999999999257,
+     0.13000000044990484
+    ],
+    "robot_world": [
+     [
+      -1.0000000000000464,
+      1.1514291110891235e-15,
+      4.4990484948659315e-10
+     ],
+     [
+      1.9402628048209237e-09,
+      -1.4294197748496069e-11,
+      1.0,
+      -1.405004245023434e-14
+     ]
+    ],
+    "thermal_link_in_model": [
+     [
+      0.18500000000000005,
+      -0.039999999999999994,
+      0.13
+     ],
+     [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+     ]
+    ],
+    "target_world": [
+     -3.6850000000000476,
+     0.0399999999999257,
+     0.13000000044990484
+    ],
+    "odom_hint": null,
+    "frames": 5,
+    "region_counts": [
+     1,
+     1,
+     1,
+     1,
+     1
+    ],
+    "stamps": [
+     14.6,
+     14.7,
+     14.8,
+     14.9,
+     15.0
+    ],
+    "frame_ids": [
+     "thermal_link"
+    ],
+    "u": 159.5,
+    "v": 119.5,
+    "u_spread": 0.0,
+    "area": 96,
+    "bbox": [
+     154,
+     114,
+     12,
+     12
+    ],
+    "touches_edge": false
+   },
+   {
+    "kind": "target",
+    "label": "left 0.15",
+    "target": "r1_target",
+    "az": 0.15,
+    "el": 0.0,
+    "dist": 2.5,
+    "commanded_world": [
+     -3.656927694840143,
+     -0.33359533118407136,
+     0.13000000044990484
+    ],
+    "robot_world": [
+     [
+      -1.0000000000000464,
+      1.1514291110891235e-15,
+      4.4990484948659315e-10
+     ],
+     [
+      1.9402628048209237e-09,
+      -1.4294197748496069e-11,
+      1.0,
+      -1.405004245023434e-14
+     ]
+    ],
+    "thermal_link_in_model": [
+     [
+      0.18500000000000005,
+      -0.039999999999999994,
+      0.13
+     ],
+     [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+     ]
+    ],
+    "target_world": [
+     -3.656927694840143,
+     -0.33359533118407136,
+     0.13000000044990484
+    ],
+    "odom_hint": null,
+    "frames": 5,
+    "region_counts": [
+     1,
+     1,
+     1,
+     1,
+     1
+    ],
+    "stamps": [
+     16.4,
+     16.5,
+     16.6,
+     16.7,
+     16.8
+    ],
+    "frame_ids": [
+     "thermal_link"
+    ],
+    "u": 117.7,
+    "v": 119.5,
+    "u_spread": 0.0,
+    "area": 100,
+    "bbox": [
+     112,
+     114,
+     12,
+     12
+    ],
+    "touches_edge": false
+   },
+   {
+    "kind": "target",
+    "label": "right 0.15",
+    "target": "r1_target",
+    "az": -0.15,
+    "el": 0.0,
+    "dist": 2.5,
+    "commanded_world": [
+     -3.6569276948401637,
+     0.41359533118392433,
+     0.13000000044990484
+    ],
+    "robot_world": [
+     [
+      -1.0000000000000464,
+      1.1514291110891235e-15,
+      4.4990484948659315e-10
+     ],
+     [
+      1.9402628048209237e-09,
+      -1.4294197748496069e-11,
+      1.0,
+      -1.405004245023434e-14
+     ]
+    ],
+    "thermal_link_in_model": [
+     [
+      0.18500000000000005,
+      -0.039999999999999994,
+      0.13
+     ],
+     [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+     ]
+    ],
+    "target_world": [
+     -3.6569276948401637,
+     0.41359533118392433,
+     0.13000000044990484
+    ],
+    "odom_hint": null,
+    "frames": 5,
+    "region_counts": [
+     1,
+     1,
+     1,
+     1,
+     1
+    ],
+    "stamps": [
+     18.0,
+     18.1,
+     18.2,
+     18.3,
+     18.4
+    ],
+    "frame_ids": [
+     "thermal_link"
+    ],
+    "u": 201.3,
+    "v": 119.5,
+    "u_spread": 0.0,
+    "area": 100,
+    "bbox": [
+     196,
+     114,
+     12,
+     12
+    ],
+    "touches_edge": false
+   },
+   {
+    "kind": "target",
+    "label": "left 0.30",
+    "target": "r1_target",
+    "az": 0.3,
+    "el": 0.0,
+    "dist": 2.5,
+    "commanded_world": [
+     -3.573341222814042,
+     -0.6988005166534197,
+     0.13000000044990484
+    ],
+    "robot_world": [
+     [
+      -1.0000000000000464,
+      1.1514291110891235e-15,
+      4.4990484948659315e-10
+     ],
+     [
+      1.9402628048209237e-09,
+      -1.4294197748496069e-11,
+      1.0,
+      -1.405004245023434e-14
+     ]
+    ],
+    "thermal_link_in_model": [
+     [
+      0.18500000000000005,
+      -0.039999999999999994,
+      0.13
+     ],
+     [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+     ]
+    ],
+    "target_world": [
+     -3.573341222814042,
+     -0.6988005166534197,
+     0.13000000044990484
+    ],
+    "odom_hint": null,
+    "frames": 5,
+    "region_counts": [
+     1,
+     1,
+     1,
+     1,
+     1
+    ],
+    "stamps": [
+     19.7,
+     19.8,
+     19.9,
+     20.0,
+     20.1
+    ],
+    "frame_ids": [
+     "thermal_link"
+    ],
+    "u": 73.59649122807018,
+    "v": 119.5,
+    "u_spread": 0.0,
+    "area": 114,
+    "bbox": [
+     68,
+     114,
+     12,
+     12
+    ],
+    "touches_edge": false
+   },
+   {
+    "kind": "target",
+    "label": "right 0.30",
+    "target": "r1_target",
+    "az": -0.3,
+    "el": 0.0,
+    "dist": 2.5,
+    "commanded_world": [
+     -3.5733412228140837,
+     0.7788005166532773,
+     0.13000000044990484
+    ],
+    "robot_world": [
+     [
+      -1.0000000000000464,
+      1.1514291110891235e-15,
+      4.4990484948659315e-10
+     ],
+     [
+      1.9402628048209237e-09,
+      -1.4294197748496069e-11,
+      1.0,
+      -1.405004245023434e-14
+     ]
+    ],
+    "thermal_link_in_model": [
+     [
+      0.18500000000000005,
+      -0.039999999999999994,
+      0.13
+     ],
+     [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+     ]
+    ],
+    "target_world": [
+     -3.5733412228140837,
+     0.7788005166532773,
+     0.13000000044990484
+    ],
+    "odom_hint": null,
+    "frames": 5,
+    "region_counts": [
+     1,
+     1,
+     1,
+     1,
+     1
+    ],
+    "stamps": [
+     21.3,
+     21.4,
+     21.5,
+     21.6,
+     21.7
+    ],
+    "frame_ids": [
+     "thermal_link"
+    ],
+    "u": 245.40350877192984,
+    "v": 119.5,
+    "u_spread": 0.0,
+    "area": 114,
+    "bbox": [
+     240,
+     114,
+     12,
+     12
+    ],
+    "touches_edge": false
+   },
+   {
+    "kind": "target",
+    "label": "left 0.45",
+    "target": "r1_target",
+    "az": 0.45,
+    "el": 0.0,
+    "dist": 2.5,
+    "commanded_world": [
+     -3.436117755881709,
+     -1.047413835278143,
+     0.13000000044990484
+    ],
+    "robot_world": [
+     [
+      -1.0000000000000464,
+      1.1514291110891235e-15,
+      4.4990484948659315e-10
+     ],
+     [
+      1.9402628048209237e-09,
+      -1.4294197748496069e-11,
+      1.0,
+      -1.405004245023434e-14
+     ]
+    ],
+    "thermal_link_in_model": [
+     [
+      0.18500000000000005,
+      -0.039999999999999994,
+      0.13
+     ],
+     [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+     ]
+    ],
+    "target_world": [
+     -3.436117755881709,
+     -1.047413835278143,
+     0.13000000044990484
+    ],
+    "odom_hint": null,
+    "frames": 5,
+    "region_counts": [
+     1,
+     1,
+     1,
+     1,
+     1
+    ],
+    "stamps": [
+     23.0,
+     23.1,
+     23.2,
+     23.3,
+     23.4
+    ],
+    "frame_ids": [
+     "thermal_link"
+    ],
+    "u": 25.5,
+    "v": 119.5,
+    "u_spread": 0.0,
+    "area": 136,
+    "bbox": [
+     19,
+     114,
+     14,
+     12
+    ],
+    "touches_edge": false
+   },
+   {
+    "kind": "target",
+    "label": "right 0.45",
+    "target": "r1_target",
+    "az": -0.45,
+    "el": 0.0,
+    "dist": 2.5,
+    "commanded_world": [
+     -3.4361177558817704,
+     1.1274138352780088,
+     0.13000000044990484
+    ],
+    "robot_world": [
+     [
+      -1.0000000000000464,
+      1.1514291110891235e-15,
+      4.4990484948659315e-10
+     ],
+     [
+      1.9402628048209237e-09,
+      -1.4294197748496069e-11,
+      1.0,
+      -1.405004245023434e-14
+     ]
+    ],
+    "thermal_link_in_model": [
+     [
+      0.18500000000000005,
+      -0.039999999999999994,
+      0.13
+     ],
+     [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+     ]
+    ],
+    "target_world": [
+     -3.4361177558817704,
+     1.1274138352780088,
+     0.13000000044990484
+    ],
+    "odom_hint": null,
+    "frames": 5,
+    "region_counts": [
+     1,
+     1,
+     1,
+     1,
+     1
+    ],
+    "stamps": [
+     24.6,
+     24.7,
+     24.8,
+     24.9,
+     25.0
+    ],
+    "frame_ids": [
+     "thermal_link"
+    ],
+    "u": 293.5,
+    "v": 119.5,
+    "u_spread": 0.0,
+    "area": 136,
+    "bbox": [
+     287,
+     114,
+     14,
+     12
+    ],
+    "touches_edge": false
+   },
+   {
+    "kind": "target",
+    "label": "up 0.20",
+    "target": "r1_target",
+    "az": 0.0,
+    "el": 0.2,
+    "dist": 2.5,
+    "commanded_world": [
+     -3.6351664446031515,
+     0.0399999999999271,
+     0.6266733274375579
+    ],
+    "robot_world": [
+     [
+      -1.0000000000000464,
+      1.1514291110891235e-15,
+      4.4990484948659315e-10
+     ],
+     [
+      1.9402628048209237e-09,
+      -1.4294197748496069e-11,
+      1.0,
+      -1.405004245023434e-14
+     ]
+    ],
+    "thermal_link_in_model": [
+     [
+      0.18500000000000005,
+      -0.039999999999999994,
+      0.13
+     ],
+     [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+     ]
+    ],
+    "target_world": [
+     -3.6351664446031515,
+     0.0399999999999271,
+     0.6266733274375579
+    ],
+    "odom_hint": null,
+    "frames": 5,
+    "region_counts": [
+     1,
+     1,
+     1,
+     1,
+     1
+    ],
+    "stamps": [
+     26.2,
+     26.3,
+     26.4,
+     26.5,
+     26.6
+    ],
+    "frame_ids": [
+     "thermal_link"
+    ],
+    "u": 159.5,
+    "v": 63.21153846153846,
+    "u_spread": 0.0,
+    "area": 104,
+    "bbox": [
+     154,
+     58,
+     12,
+     12
+    ],
+    "touches_edge": false
+   },
+   {
+    "kind": "target",
+    "label": "down 0.04 at 1.5 m",
+    "target": "r1_target",
+    "az": 0.0,
+    "el": -0.04,
+    "dist": 1.5,
+    "commanded_world": [
+     -2.6838001599915144,
+     0.03999999999995383,
+     0.0700159991699536
+    ],
+    "robot_world": [
+     [
+      -1.0000000000000464,
+      1.1514291110891235e-15,
+      4.4990484948659315e-10
+     ],
+     [
+      1.9402628048209237e-09,
+      -1.4294197748496069e-11,
+      1.0,
+      -1.405004245023434e-14
+     ]
+    ],
+    "thermal_link_in_model": [
+     [
+      0.18500000000000005,
+      -0.039999999999999994,
+      0.13
+     ],
+     [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+     ]
+    ],
+    "target_world": [
+     -2.6838001599915144,
+     0.03999999999995383,
+     0.0700159991699536
+    ],
+    "odom_hint": null,
+    "frames": 5,
+    "region_counts": [
+     1,
+     1,
+     1,
+     1,
+     1
+    ],
+    "stamps": [
+     27.8,
+     27.9,
+     28.0,
+     28.1,
+     28.2
+    ],
+    "frame_ids": [
+     "thermal_link"
+    ],
+    "u": 159.5,
+    "v": 130.66917293233084,
+    "u_spread": 0.0,
+    "area": 266,
+    "bbox": [
+     151,
+     122,
+     18,
+     18
+    ],
+    "touches_edge": false
+   },
+   {
+    "kind": "target",
+    "label": "left 0.30 up 0.15",
+    "target": "r1_target",
+    "az": 0.3,
+    "el": 0.15,
+    "dist": 2.5,
+    "commanded_world": [
+     -3.546522725360926,
+     -0.6905045832311067,
+     0.5035953316339028
+    ],
+    "robot_world": [
+     [
+      -1.0000000000000464,
+      1.1514291110891235e-15,
+      4.4990484948659315e-10
+     ],
+     [
+      1.9402628048209237e-09,
+      -1.4294197748496069e-11,
+      1.0,
+      -1.405004245023434e-14
+     ]
+    ],
+    "thermal_link_in_model": [
+     [
+      0.18500000000000005,
+      -0.039999999999999994,
+      0.13
+     ],
+     [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+     ]
+    ],
+    "target_world": [
+     -3.546522725360926,
+     -0.6905045832311067,
+     0.5035953316339028
+    ],
+    "odom_hint": null,
+    "frames": 5,
+    "region_counts": [
+     1,
+     1,
+     1,
+     1,
+     1
+    ],
+    "stamps": [
+     29.5,
+     29.6,
+     29.7,
+     29.8,
+     29.9
+    ],
+    "frame_ids": [
+     "thermal_link"
+    ],
+    "u": 73.65517241379311,
+    "v": 75.58620689655173,
+    "u_spread": 0.0,
+    "area": 116,
+    "bbox": [
+     68,
+     70,
+     12,
+     12
+    ],
+    "touches_edge": false
+   },
+   {
+    "kind": "target",
+    "label": "left 0.30 down 0.03 at 2 m",
+    "target": "r1_target",
+    "az": 0.3,
+    "el": -0.03,
+    "dist": 2.0,
+    "commanded_world": [
+     -3.0948132398943087,
+     -0.5507744650837569,
+     0.07000900004491352
+    ],
+    "robot_world": [
+     [
+      -1.0000000000000464,
+      1.1514291110891235e-15,
+      4.4990484948659315e-10
+     ],
+     [
+      1.9402628048209237e-09,
+      -1.4294197748496069e-11,
+      1.0,
+      -1.405004245023434e-14
+     ]
+    ],
+    "thermal_link_in_model": [
+     [
+      0.18500000000000005,
+      -0.039999999999999994,
+      0.13
+     ],
+     [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+     ]
+    ],
+    "target_world": [
+     -3.0948132398943087,
+     -0.5507744650837569,
+     0.07000900004491352
+    ],
+    "odom_hint": null,
+    "frames": 5,
+    "region_counts": [
+     1,
+     1,
+     1,
+     1,
+     1
+    ],
+    "stamps": [
+     31.2,
+     31.3,
+     31.4,
+     31.5,
+     31.6
+    ],
+    "frame_ids": [
+     "thermal_link"
+    ],
+    "u": 73.76571428571428,
+    "v": 128.25714285714287,
+    "u_spread": 0.0,
+    "area": 175,
+    "bbox": [
+     67,
+     121,
+     15,
+     15
+    ],
+    "touches_edge": false
+   },
+   {
+    "kind": "target",
+    "label": "left 0.30 at 1.2 m",
+    "target": "r1_target",
+    "az": 0.3,
+    "el": 0.0,
+    "dist": 1.2,
+    "commanded_world": [
+     -2.331403786950765,
+     -0.3146242479936436,
+     0.13000000044990484
+    ],
+    "robot_world": [
+     [
+      -1.0000000000000464,
+      1.1514291110891235e-15,
+      4.4990484948659315e-10
+     ],
+     [
+      1.9402628048209237e-09,
+      -1.4294197748496069e-11,
+      1.0,
+      -1.405004245023434e-14
+     ]
+    ],
+    "thermal_link_in_model": [
+     [
+      0.18500000000000005,
+      -0.039999999999999994,
+      0.13
+     ],
+     [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+     ]
+    ],
+    "target_world": [
+     -2.331403786950765,
+     -0.3146242479936436,
+     0.13000000044990484
+    ],
+    "odom_hint": null,
+    "frames": 5,
+    "region_counts": [
+     1,
+     1,
+     1,
+     1,
+     1
+    ],
+    "stamps": [
+     32.9,
+     33.0,
+     33.1,
+     33.2,
+     33.3
+    ],
+    "frame_ids": [
+     "thermal_link"
+    ],
+    "u": 73.55186721991701,
+    "v": 119.5,
+    "u_spread": 0.0,
+    "area": 482,
+    "bbox": [
+     61,
+     108,
+     26,
+     24
+    ],
+    "touches_edge": false
+   },
+   {
+    "kind": "target",
+    "label": "left 0.30 at 5 m",
+    "target": "r1_target",
+    "az": 0.3,
+    "el": 0.0,
+    "dist": 5.0,
+    "commanded_world": [
+     -5.961682445628036,
+     -1.4376010333068352,
+     0.13000000044990484
+    ],
+    "robot_world": [
+     [
+      -1.0000000000000464,
+      1.1514291110891235e-15,
+      4.4990484948659315e-10
+     ],
+     [
+      1.9402628048209237e-09,
+      -1.4294197748496069e-11,
+      1.0,
+      -1.405004245023434e-14
+     ]
+    ],
+    "thermal_link_in_model": [
+     [
+      0.18500000000000005,
+      -0.039999999999999994,
+      0.13
+     ],
+     [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+     ]
+    ],
+    "target_world": [
+     -5.961682445628036,
+     -1.4376010333068352,
+     0.13000000044990484
+    ],
+    "odom_hint": null,
+    "frames": 5,
+    "region_counts": [
+     1,
+     1,
+     1,
+     1,
+     1
+    ],
+    "stamps": [
+     34.5,
+     34.6,
+     34.7,
+     34.8,
+     34.9
+    ],
+    "frame_ids": [
+     "thermal_link"
+    ],
+    "u": 73.78571428571429,
+    "v": 119.5,
+    "u_spread": 0.0,
+    "area": 28,
+    "bbox": [
+     71,
+     117,
+     6,
+     6
+    ],
+    "touches_edge": false
+   },
+   {
+    "kind": "target",
+    "label": "rot: ahead",
+    "target": "r1_target",
+    "az": 0.0,
+    "el": 0.0,
+    "dist": 2.5,
+    "commanded_world": [
+     -3.7801262479228184,
+     0.4183967334753601,
+     0.1300000004499049
+    ],
+    "robot_world": [
+     [
+      -1.5000000000000298,
+      -0.9999999999999916,
+      4.4990484948659315e-10
+     ],
+     [
+      1.8657324248391347e-09,
+      -5.327913180538135e-10,
+      0.9635581854171952,
+      0.2674988286245794
+     ]
+    ],
+    "thermal_link_in_model": [
+     [
+      0.18500000000000005,
+      -0.040000000000000036,
+      0.13000000000000003
+     ],
+     [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+     ]
+    ],
+    "target_world": [
+     -3.7801262479228184,
+     0.4183967334753601,
+     0.1300000004499049
+    ],
+    "odom_hint": null,
+    "frames": 5,
+    "region_counts": [
+     1,
+     1,
+     1,
+     1,
+     1
+    ],
+    "stamps": [
+     37.5,
+     37.6,
+     37.7,
+     37.8,
+     37.9
+    ],
+    "frame_ids": [
+     "thermal_link"
+    ],
+    "u": 159.5,
+    "v": 119.5,
+    "u_spread": 0.0,
+    "area": 96,
+    "bbox": [
+     154,
+     114,
+     12,
+     12
+    ],
+    "touches_edge": false
+   },
+   {
+    "kind": "target",
+    "label": "rot: left 0.30",
+    "target": "r1_target",
+    "az": 0.3,
+    "el": 0.0,
+    "dist": 2.5,
+    "commanded_world": [
+     -4.065299777374415,
+     -0.27223337304334894,
+     0.1300000004499049
+    ],
+    "robot_world": [
+     [
+      -1.5000000000000298,
+      -0.9999999999999916,
+      4.4990484948659315e-10
+     ],
+     [
+      1.8657324248391347e-09,
+      -5.327913180538135e-10,
+      0.9635581854171952,
+      0.2674988286245794
+     ]
+    ],
+    "thermal_link_in_model": [
+     [
+      0.18500000000000005,
+      -0.040000000000000036,
+      0.13000000000000003
+     ],
+     [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+     ]
+    ],
+    "target_world": [
+     -4.065299777374415,
+     -0.27223337304334894,
+     0.1300000004499049
+    ],
+    "odom_hint": null,
+    "frames": 5,
+    "region_counts": [
+     1,
+     1,
+     1,
+     1,
+     1
+    ],
+    "stamps": [
+     39.1,
+     39.2,
+     39.3,
+     39.4,
+     39.5
+    ],
+    "frame_ids": [
+     "thermal_link"
+    ],
+    "u": 73.59649122807018,
+    "v": 119.5,
+    "u_spread": 0.0,
+    "area": 114,
+    "bbox": [
+     68,
+     114,
+     12,
+     12
+    ],
+    "touches_edge": false
+   },
+   {
+    "kind": "target",
+    "label": "rot: right 0.30",
+    "target": "r1_target",
+    "az": -0.3,
+    "el": 0.0,
+    "dist": 2.5,
+    "commanded_world": [
+     -3.30359441770002,
+     0.9939063343635076,
+     0.1300000004499049
+    ],
+    "robot_world": [
+     [
+      -1.5000000000000298,
+      -0.9999999999999916,
+      4.4990484948659315e-10
+     ],
+     [
+      1.8657324248391347e-09,
+      -5.327913180538135e-10,
+      0.9635581854171952,
+      0.2674988286245794
+     ]
+    ],
+    "thermal_link_in_model": [
+     [
+      0.18500000000000005,
+      -0.040000000000000036,
+      0.13000000000000003
+     ],
+     [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+     ]
+    ],
+    "target_world": [
+     -3.30359441770002,
+     0.9939063343635076,
+     0.1300000004499049
+    ],
+    "odom_hint": null,
+    "frames": 5,
+    "region_counts": [
+     1,
+     1,
+     1,
+     1,
+     1
+    ],
+    "stamps": [
+     40.7,
+     40.8,
+     40.9,
+     41.0,
+     41.1
+    ],
+    "frame_ids": [
+     "thermal_link"
+    ],
+    "u": 245.40350877192984,
+    "v": 119.5,
+    "u_spread": 0.0,
+    "area": 114,
+    "bbox": [
+     240,
+     114,
+     12,
+     12
+    ],
+    "touches_edge": false
+   },
+   {
+    "kind": "target",
+    "label": "cone ahead",
+    "target": "fire_cone",
+    "az": 0.0,
+    "el": 0.0,
+    "dist": 2.5,
+    "ground": true,
+    "commanded_world": [
+     -3.6850000000000476,
+     0.0399999999999257,
+     0.0
+    ],
+    "robot_world": [
+     [
+      -1.0000000000000464,
+      1.1514301956452873e-15,
+      4.4990484948659315e-10
+     ],
+     [
+      1.9402628048508164e-09,
+      -1.4294197752340204e-11,
+      1.0,
+      -1.405004245023434e-14
+     ]
+    ],
+    "thermal_link_in_model": [
+     [
+      0.18500000000000005,
+      -0.039999999999999994,
+      0.13
+     ],
+     [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+     ]
+    ],
+    "target_world": [
+     -3.6850000000000476,
+     0.0399999999999257,
+     0.0
+    ],
+    "odom_hint": null,
+    "frames": 5,
+    "region_counts": [
+     1,
+     1,
+     1,
+     1,
+     1
+    ],
+    "stamps": [
+     44.1,
+     44.2,
+     44.3,
+     44.4,
+     44.5
+    ],
+    "frame_ids": [
+     "thermal_link"
+    ],
+    "u": 159.5,
+    "v": 112.5966735966736,
+    "u_spread": 0.0,
+    "area": 1924,
+    "bbox": [
+     132,
+     69,
+     56,
+     67
+    ],
+    "touches_edge": false
+   },
+   {
+    "kind": "target",
+    "label": "cone left 0.30",
+    "target": "fire_cone",
+    "az": 0.3,
+    "el": 0.0,
+    "dist": 2.5,
+    "ground": true,
+    "commanded_world": [
+     -3.573341222814042,
+     -0.6988005166534197,
+     0.0
+    ],
+    "robot_world": [
+     [
+      -1.0000000000000464,
+      1.1514301956452873e-15,
+      4.4990484948659315e-10
+     ],
+     [
+      1.9402628048508164e-09,
+      -1.4294197752340204e-11,
+      1.0,
+      -1.405004245023434e-14
+     ]
+    ],
+    "thermal_link_in_model": [
+     [
+      0.18500000000000005,
+      -0.039999999999999994,
+      0.13
+     ],
+     [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+     ]
+    ],
+    "target_world": [
+     -3.573341222814042,
+     -0.6988005166534197,
+     0.0
+    ],
+    "odom_hint": null,
+    "frames": 5,
+    "region_counts": [
+     1,
+     1,
+     1,
+     1,
+     1
+    ],
+    "stamps": [
+     45.7,
+     45.8,
+     45.9,
+     46.0,
+     46.1
+    ],
+    "frame_ids": [
+     "thermal_link"
+    ],
+    "u": 73.08774310266847,
+    "v": 112.31886024423338,
+    "u_spread": 0.0,
+    "area": 2211,
+    "bbox": [
+     43,
+     66,
+     61,
+     71
+    ],
+    "touches_edge": false
+   },
+   {
+    "kind": "target",
+    "label": "cone right 0.30",
+    "target": "fire_cone",
+    "az": -0.3,
+    "el": 0.0,
+    "dist": 2.5,
+    "ground": true,
+    "commanded_world": [
+     -3.5733412228140837,
+     0.7788005166532773,
+     0.0
+    ],
+    "robot_world": [
+     [
+      -1.0000000000000464,
+      1.1514301956452873e-15,
+      4.4990484948659315e-10
+     ],
+     [
+      1.9402628048508164e-09,
+      -1.4294197752340204e-11,
+      1.0,
+      -1.405004245023434e-14
+     ]
+    ],
+    "thermal_link_in_model": [
+     [
+      0.18500000000000005,
+      -0.039999999999999994,
+      0.13
+     ],
+     [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+     ]
+    ],
+    "target_world": [
+     -3.5733412228140837,
+     0.7788005166532773,
+     0.0
+    ],
+    "odom_hint": null,
+    "frames": 5,
+    "region_counts": [
+     1,
+     1,
+     1,
+     1,
+     1
+    ],
+    "stamps": [
+     47.4,
+     47.5,
+     47.6,
+     47.7,
+     47.8
+    ],
+    "frame_ids": [
+     "thermal_link"
+    ],
+    "u": 245.91990950226244,
+    "v": 112.32307692307693,
+    "u_spread": 0.0,
+    "area": 2210,
+    "bbox": [
+     216,
+     66,
+     61,
+     71
+    ],
+    "touches_edge": false
+   }
+  ]
+ }
+}

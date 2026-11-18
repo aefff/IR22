@@ -1,0 +1,14 @@
+<?xml version="1.0" ?>
+<sdf version="1.9">
+  <model name="r1_target">
+    <static>true</static>
+    <link name="target_link">
+      <visual name="hot_sphere">
+        <geometry><sphere><radius>0.05</radius></sphere></geometry>
+        <plugin filename="gz-sim-thermal-system" name="gz::sim::systems::Thermal">
+          <temperature>600.0</temperature>
+        </plugin>
+      </visual>
+    </link>
+  </model>
+</sdf>
