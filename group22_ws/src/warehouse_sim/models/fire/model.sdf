@@ -11,6 +11,7 @@
             <length>0.6</length>
           </cone>
         </geometry>
+        <visibility_flags>2</visibility_flags>
         <material>
           <ambient>1 0.2 0 1</ambient>
           <diffuse>1 0.2 0 1</diffuse>

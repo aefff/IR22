@@ -221,6 +221,7 @@
         <update_rate>15</update_rate>
         <always_on>true</always_on>
         <visualize>true</visualize>
+        <visibility_mask>1</visibility_mask>
         <camera>
           <horizontal_fov>1.047</horizontal_fov>
           <image>
@@ -263,6 +264,7 @@
         <update_rate>10</update_rate>
         <always_on>true</always_on>
         <visualize>true</visualize>
+        <visibility_mask>2</visibility_mask>
         <camera>
           <horizontal_fov>1.047</horizontal_fov>
           <image>

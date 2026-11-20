@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <chrono>
 #include <string>
+#include <cstdint>
 #include <mutex>
 #include <unordered_set>
 
@@ -15,10 +16,20 @@
 #include <gz/sim/components/Name.hh>
 #include <gz/sim/components/ParentEntity.hh>
 #include <gz/sim/components/Temperature.hh>
+#include <gz/sim/components/Visibility.hh>
 #include <sdf/Material.hh>
 
 namespace warehouse_sim
 {
+namespace
+{
+constexpr double kHeatingRateKelvinPerSecond = 2.0;
+constexpr double kMaximumTemperatureKelvin = 600.0 + 273.15;
+// The visual changes from heat source to visible fire at 250 °C.
+constexpr double kIgnitionTemperatureKelvin = 250.0 + 273.15;
+constexpr std::uint32_t kFireVisibilityFlags = 0x3u;
+}
+
 class HazardHeatManager final : public gz::sim::System,
                                 public gz::sim::ISystemConfigure,
                                 public gz::sim::ISystemPreUpdate
@@ -52,15 +63,20 @@ class HazardHeatManager final : public gz::sim::System,
         }
 
         const double oldK = _temperature->Data().Kelvin();
-        const double newK = std::min(873.15, oldK + 2.0 * dt);
+        const double newK = std::min(
+            kMaximumTemperatureKelvin,
+            oldK + kHeatingRateKelvinPerSecond * dt);
         if (newK > oldK + 1e-9)
         {
           gz::math::Temperature updated;
           updated.SetKelvin(newK);
           _ecm.SetComponentData<gz::sim::components::Temperature>(_entity, updated);
         }
-        if (newK >= 523.15)
+        if (newK >= kIgnitionTemperatureKelvin)
+        {
           this->MakeOrange(_entity, _ecm);
+          this->MakeFireVisible(_entity, _ecm);
+        }
         return true;
       });
   }
@@ -87,7 +103,7 @@ class HazardHeatManager final : public gz::sim::System,
   private: void MakeOrange(gz::sim::Entity _entity,
       gz::sim::EntityComponentManager &_ecm)
   {
-    if (!this->orange.insert(_entity).second)
+    if (this->orange.count(_entity))
       return;
     auto *material = _ecm.Component<gz::sim::components::Material>(_entity);
     if (!material)
@@ -98,6 +114,29 @@ class HazardHeatManager final : public gz::sim::System,
     updated.SetDiffuse(orange);
     updated.SetEmissive(gz::math::Color(0.9, 0.12, 0.0, 1.0));
     _ecm.SetComponentData<gz::sim::components::Material>(_entity, updated);
+    this->orange.insert(_entity);
+  }
+
+  private: void MakeFireVisible(gz::sim::Entity _entity,
+      gz::sim::EntityComponentManager &_ecm)
+  {
+    if (this->fireVisible.count(_entity))
+      return;
+
+    // The model starts with flag 0x2 (matched by the thermal camera only).
+    // At ignition, add flag 0x1 so the regular camera can render it too.
+    auto *visibility = _ecm.Component<gz::sim::components::VisibilityFlags>(_entity);
+    if (visibility)
+    {
+      _ecm.SetComponentData<gz::sim::components::VisibilityFlags>(
+          _entity, kFireVisibilityFlags);
+    }
+    else
+    {
+      _ecm.CreateComponent(_entity,
+          gz::sim::components::VisibilityFlags(kFireVisibilityFlags));
+    }
+    this->fireVisible.insert(_entity);
   }
 
   private: void OnDiscovered(const gz::msgs::StringMsg &_msg)
@@ -110,6 +149,7 @@ class HazardHeatManager final : public gz::sim::System,
   private: std::mutex mutex;
   private: std::unordered_set<std::string> discovered;
   private: std::unordered_set<gz::sim::Entity> orange;
+  private: std::unordered_set<gz::sim::Entity> fireVisible;
 };
 }
 

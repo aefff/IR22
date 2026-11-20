@@ -33,7 +33,7 @@ class HazardSpawner(Node):
         # Random position
         x, y = random.uniform(-6.0, 6.0), random.uniform(-4.0, 4.0)
         name = f'fire_hazard_{len(self.hazards) + 1:03d}'
-        temperature_c = random.uniform(100.0, 250.0)
+        temperature_c = random.uniform(150.0, 250.0)
         self.get_logger().info(f'Spawning {name} at x={x:.2f}, y={y:.2f}, {temperature_c:.1f} °C')
 
         # Each name is unique so the world heat manager can match discovery events.
