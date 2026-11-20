@@ -171,6 +171,7 @@
         <always_on>true</always_on>
         <visualize>true</visualize>
         <lidar>
+          <visibility_mask>1</visibility_mask>
           <scan>
             <horizontal>
               <samples>360</samples>
@@ -221,8 +222,8 @@
         <update_rate>15</update_rate>
         <always_on>true</always_on>
         <visualize>true</visualize>
-        <visibility_mask>1</visibility_mask>
         <camera>
+          <visibility_mask>1</visibility_mask>
           <horizontal_fov>1.047</horizontal_fov>
           <image>
             <width>640</width>
@@ -264,8 +265,8 @@
         <update_rate>10</update_rate>
         <always_on>true</always_on>
         <visualize>true</visualize>
-        <visibility_mask>2</visibility_mask>
         <camera>
+          <visibility_mask>2</visibility_mask>
           <horizontal_fov>1.047</horizontal_fov>
           <image>
             <width>320</width>
