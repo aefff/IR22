@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<sdf version="1.9">
+  <model name="box_hazard">
+    <link name="source">
+      <collision name="box_collision">
+          <pose>0 0 0.15 0 0 0</pose>
+          <geometry><box><size>0.6 0.5 0.45</size></box></geometry>
+      </collision>
+      <visual name="box">
+        <pose>-0 0 0.15 0 0 0</pose>
+        <geometry><box><size>0.6 0.5 0.45</size></box></geometry>
+        <visibility_flags>1</visibility_flags>
+        <material>
+          <ambient>0.72 0.55 0.35 1</ambient>
+          <diffuse>0.72 0.55 0.35 1</diffuse>
+        </material>
+      </visual>
+    </link>
+  </model>
+</sdf>
+  
+      

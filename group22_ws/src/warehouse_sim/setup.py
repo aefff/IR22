@@ -19,6 +19,8 @@ setup(
             glob('models/warehouse_robot/*')),
         (os.path.join('share', package_name, 'models', 'fire'),
             glob('models/fire/*')),
+        (os.path.join('share', package_name, 'models', 'box'),
+            glob('models/box/*')),
     ],
     package_data={'': ['py.typed']},
     install_requires=['setuptools'],
