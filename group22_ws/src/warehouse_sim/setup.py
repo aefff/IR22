@@ -37,6 +37,7 @@ setup(
     },
     entry_points={
         'console_scripts': [
+            'frontier_explorer = warehouse_sim.frontier_explorer:main',
             'hazard_spawner = warehouse_sim.hazard_spawner:main',
             'fire_detection = warehouse_sim.fire_detection:main',
             'hazard_discovery = warehouse_sim.hazard_discovery:main',

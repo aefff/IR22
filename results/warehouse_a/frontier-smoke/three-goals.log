@@ -1,0 +1,7 @@
+[INFO] [1795514226.718308145] [frontier_explorer]: Frontier approach in map: x=7.94, y=-3.39, yaw=1.68, grid route=0.55 m, boundary=76 cells.
+[INFO] [1795514234.030603389] [frontier_explorer]: Reached frontier approach 1.
+[INFO] [1795514235.573537437] [frontier_explorer]: Frontier approach in map: x=8.14, y=-2.89, yaw=2.68, grid route=0.95 m, boundary=121 cells.
+[INFO] [1795514246.155829810] [frontier_explorer]: Reached frontier approach 2.
+[INFO] [1795514247.569053424] [frontier_explorer]: Frontier approach in map: x=8.19, y=-1.44, yaw=2.28, grid route=1.45 m, boundary=6 cells.
+[INFO] [1795514257.774588654] [frontier_explorer]: Reached frontier approach 3.
+[INFO] [1795514257.775130133] [frontier_explorer]: Attempt limit reached: 3/3 goals reached.
