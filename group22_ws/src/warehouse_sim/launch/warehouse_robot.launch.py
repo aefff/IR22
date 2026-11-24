@@ -14,9 +14,11 @@ from ament_index_python.packages import get_package_prefix, get_package_share_di
 
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, SetEnvironmentVariable
+from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import EnvironmentVariable, LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import Node
+from launch_ros.substitutions import FindPackageShare
 
 
 def static_tf(child, x, y, z):
@@ -41,6 +43,10 @@ def generate_launch_description():
     args = [
         DeclareLaunchArgument('world', default_value='warehouse_a.sdf',
                               description='World file in the worlds/ folder'),
+        DeclareLaunchArgument('spawn_hazards', default_value='true',
+                              description='Spawn dynamic scenario hazards'),
+        DeclareLaunchArgument('slam', default_value='false',
+                              description='Build a live map with SLAM Toolbox'),
         DeclareLaunchArgument('x', default_value='-4.0'),
         DeclareLaunchArgument('y', default_value='0.0'),
         DeclareLaunchArgument('yaw', default_value='0.0'),
@@ -91,6 +97,7 @@ def generate_launch_description():
     hazard_spawner = Node(
         package='warehouse_sim',
         executable='hazard_spawner',
+        condition=IfCondition(LaunchConfiguration('spawn_hazards')),
         output='screen'
     )
     
@@ -127,7 +134,18 @@ def generate_launch_description():
         output='screen',
     )
 
+    slam = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(PathJoinSubstitution([
+            FindPackageShare('slam_toolbox'), 'launch', 'online_async_launch.py'])),
+        condition=IfCondition(LaunchConfiguration('slam')),
+        launch_arguments={
+            'use_sim_time': 'true',
+            'slam_params_file': os.path.join(pkg_share, 'config', 'warehouse_slam.yaml'),
+        }.items(),
+    )
+
     return LaunchDescription(args + [
+        slam,
         gz_sim,
         spawn,
         bridge,
