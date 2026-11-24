@@ -1,0 +1,13 @@
+[INFO] [1795514609.602844776] [frontier_explorer]: Frontier approach in map: x=0.01, y=-0.41, yaw=-2.62, grid route=0.40 m, boundary=445 cells.
+[INFO] [1795514615.111422509] [frontier_explorer]: Reached frontier approach 1.
+[INFO] [1795514616.022318979] [frontier_explorer]: Frontier approach in map: x=-1.11, y=-0.51, yaw=-2.43, grid route=1.30 m, boundary=4 cells.
+[INFO] [1795514622.095643828] [frontier_explorer]: Reached frontier approach 2.
+[INFO] [1795514624.020927661] [frontier_explorer]: Frontier approach in map: x=-1.96, y=-1.96, yaw=-1.93, grid route=2.25 m, boundary=30 cells.
+[INFO] [1795514630.574050772] [frontier_explorer]: Reached frontier approach 3.
+[INFO] [1795514632.016684852] [frontier_explorer]: Frontier approach in map: x=-2.47, y=-2.07, yaw=-0.71, grid route=0.90 m, boundary=38 cells.
+[INFO] [1795514640.461906560] [frontier_explorer]: Reached frontier approach 4.
+[INFO] [1795514642.018411768] [frontier_explorer]: Frontier approach in map: x=-2.43, y=-2.97, yaw=-0.71, grid route=0.90 m, boundary=63 cells.
+[INFO] [1795514646.385509741] [frontier_explorer]: Reached frontier approach 5.
+[INFO] [1795514648.019019656] [frontier_explorer]: Frontier approach in map: x=-2.44, y=-3.47, yaw=0.52, grid route=0.50 m, boundary=88 cells.
+[ERROR] [1795514705.085580530] [frontier_explorer]: Nav2 stopped: status=6, error=102, 
+[ros2run]: Process exited with failure 1

@@ -15,6 +15,13 @@ attempts one goal. The third runs successive goals until the available
 approaches are exhausted. Ctrl+C requests cancellation of the current goal.
 Each process starts its own attempt history.
 
+If the controller aborts with a TF error, the explorer checks that simulation
+time advances and that a map-to-robot transform is available at a timestamp
+after the abort. After the next map publication it selects again from the
+current robot pose. The failed location stays eligible. Two consecutive TF
+aborts or a recovery timeout end the run. Each submission counts toward
+`--max-goals`, including one that ends in a TF error.
+
 A frontier is a known-free cell next to an unknown cell. The selector groups
 frontier cells, discards clusters smaller than 0.20 m measured in cell widths,
 and searches for the nearest reachable viewpoint on the known side. It uses

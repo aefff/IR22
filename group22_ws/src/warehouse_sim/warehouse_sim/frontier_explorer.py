@@ -6,7 +6,7 @@ import signal
 import time
 
 from action_msgs.msg import GoalStatus
-from nav2_msgs.action import ComputePathToPose, NavigateToPose
+from nav2_msgs.action import ComputePathToPose, FollowPath, NavigateToPose
 from nav_msgs.msg import OccupancyGrid
 import numpy as np
 import rclpy
@@ -95,10 +95,21 @@ class FrontierExplorer(Node):
                 self.wait(cancel.done, 8, 'Nav2 cancellation acknowledgement', False)
                 self.wait(result.done, 8, 'Nav2 to finish the canceled goal', False)
 
+    def wait_for_tf_recovery(self, frame):
+        """Wait for a transform at a post-abort sim timestamp, including fresh odometry."""
+        clock = self.get_clock()
+        failed_at = clock.now()
+        self.wait(lambda: clock.now() > failed_at, 10, 'the clock to advance after TF failure')
+        target = clock.now()
+        self.wait(lambda: self.buffer.can_transform(frame, 'base_link', target),
+                  10, f'{frame} to base_link at post-abort time {target.nanoseconds * 1e-9:.3f}')
+
     def explore(self, execute, limit):
         """Preview once, or navigate until stopped, exhausted, or the attempt limit is hit."""
         attempted = []
         reached = 0
+        sent = 0
+        retrying_tf = False
         self.wait(lambda: self.latest_map is not None, 15, 'a live /map')
         if execute:
             self.wait(self.nav.server_is_ready, 15, 'the Nav2 action server')
@@ -106,7 +117,7 @@ class FrontierExplorer(Node):
             frame, point = self.choose(attempted)
             if point is None:
                 self.get_logger().info(f'No further eligible reachable frontier. '
-                                       f'{reached}/{len(attempted)} goals reached.')
+                                       f'{reached}/{sent} goals reached.')
                 return
             self.get_logger().info(
                 f'Frontier approach in {frame}: x={point.x:.2f}, y={point.y:.2f}, '
@@ -116,11 +127,25 @@ class FrontierExplorer(Node):
                 self.get_logger().info('Preview complete. No navigation goal sent.')
                 return
             response = self.navigate(frame, point)
-            attempted.append((point.x, point.y))
+            sent += 1
             code = response.result.error_code
+            if response.status == GoalStatus.STATUS_ABORTED and code == FollowPath.Result.TF_ERROR:
+                if retrying_tf or (limit and sent >= limit):
+                    raise RuntimeError(f'Nav2 TF error {code} on attempt {sent}; '
+                                       f'no retry remaining. {response.result.error_msg}')
+                self.get_logger().warn(f'Nav2 TF error {code} on attempt {sent}. '
+                                       'Waiting for fresh TF before selecting once more.')
+                retrying_tf = True
+                self.wait_for_tf_recovery(frame)
+                previous = self.latest_map
+                self.wait(lambda: self.latest_map is not previous, 15,
+                          'a map update after TF recovery')
+                continue
+            attempted.append((point.x, point.y))
+            retrying_tf = False
             if response.status == GoalStatus.STATUS_SUCCEEDED:
                 reached += 1
-                self.get_logger().info(f'Reached frontier approach {len(attempted)}.')
+                self.get_logger().info(f'Reached frontier approach {sent}.')
             elif (response.status == GoalStatus.STATUS_ABORTED and
                   code in (ComputePathToPose.Result.NO_VALID_PATH,
                            ComputePathToPose.Result.GOAL_OCCUPIED)):
@@ -128,7 +153,7 @@ class FrontierExplorer(Node):
             else:
                 raise RuntimeError(f'Nav2 stopped: status={response.status}, error={code}, '
                                    f'{response.result.error_msg}')
-            if limit and len(attempted) >= limit:
+            if limit and sent >= limit:
                 self.get_logger().info(f'Attempt limit reached: {reached}/{limit} goals reached.')
                 return
             previous = self.latest_map

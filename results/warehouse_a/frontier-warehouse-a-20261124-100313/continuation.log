@@ -1,0 +1,63 @@
+[INFO] [1795515005.751857354] [frontier_explorer]: Frontier approach in map: x=-2.39, y=-3.57, yaw=0.62, grid route=0.55 m, boundary=62 cells.
+[INFO] [1795515009.597255805] [frontier_explorer]: Reached frontier approach 1.
+[INFO] [1795515010.021803290] [frontier_explorer]: Frontier approach in map: x=-1.84, y=-3.57, yaw=0.11, grid route=0.60 m, boundary=29 cells.
+[INFO] [1795515014.967213149] [frontier_explorer]: Reached frontier approach 2.
+[INFO] [1795515016.016688142] [frontier_explorer]: Frontier approach in map: x=-1.54, y=-3.97, yaw=1.21, grid route=0.90 m, boundary=23 cells.
+[INFO] [1795515024.119243079] [frontier_explorer]: Reached frontier approach 3.
+[INFO] [1795515026.027190904] [frontier_explorer]: Frontier approach in map: x=2.76, y=-3.91, yaw=-0.11, grid route=4.30 m, boundary=4 cells.
+[INFO] [1795515045.952695231] [frontier_explorer]: Reached frontier approach 4.
+[INFO] [1795515046.024269512] [frontier_explorer]: Frontier approach in map: x=5.81, y=-4.06, yaw=0.46, grid route=3.25 m, boundary=1097 cells.
+[INFO] [1795515058.707065792] [frontier_explorer]: Reached frontier approach 5.
+[INFO] [1795515060.021775735] [frontier_explorer]: Frontier approach in map: x=5.71, y=-3.41, yaw=1.21, grid route=0.60 m, boundary=120 cells.
+[INFO] [1795515065.547334078] [frontier_explorer]: Reached frontier approach 6.
+[INFO] [1795515066.024012275] [frontier_explorer]: Frontier approach in map: x=6.11, y=-3.11, yaw=2.47, grid route=0.65 m, boundary=6 cells.
+[INFO] [1795515127.696848287] [frontier_explorer]: Reached frontier approach 7.
+[INFO] [1795515128.033886448] [frontier_explorer]: Frontier approach in map: x=6.16, y=-2.06, yaw=2.28, grid route=1.35 m, boundary=5 cells.
+[INFO] [1795515178.793177629] [frontier_explorer]: Reached frontier approach 8.
+[INFO] [1795515180.029931549] [frontier_explorer]: Frontier approach in map: x=7.51, y=-3.36, yaw=0.71, grid route=2.35 m, boundary=28 cells.
+[INFO] [1795515205.562506626] [frontier_explorer]: Reached frontier approach 9.
+[INFO] [1795515206.036051328] [frontier_explorer]: Frontier approach in map: x=8.01, y=-3.42, yaw=1.93, grid route=0.70 m, boundary=81 cells.
+[INFO] [1795515270.025532617] [frontier_explorer]: Reached frontier approach 10.
+[INFO] [1795515272.029698937] [frontier_explorer]: Frontier approach in map: x=8.16, y=-2.37, yaw=1.57, grid route=1.20 m, boundary=273 cells.
+[INFO] [1795515294.512847900] [frontier_explorer]: Reached frontier approach 11.
+[INFO] [1795515296.028654300] [frontier_explorer]: Frontier approach in map: x=9.51, y=-3.42, yaw=0.71, grid route=2.15 m, boundary=27 cells.
+[WARN] [1795515338.363686832] [frontier_explorer]: Nav2 TF error 102 on attempt 12. Waiting for fresh TF before selecting once more.
+[INFO] [1795515340.026503061] [frontier_explorer]: Frontier approach in map: x=9.51, y=-3.42, yaw=0.71, grid route=1.00 m, boundary=27 cells.
+[INFO] [1795515479.077449011] [frontier_explorer]: Reached frontier approach 13.
+[INFO] [1795515480.031065499] [frontier_explorer]: Frontier approach in map: x=10.01, y=-3.47, yaw=1.93, grid route=0.60 m, boundary=80 cells.
+[INFO] [1795515484.538804644] [frontier_explorer]: Reached frontier approach 14.
+[INFO] [1795515486.039608985] [frontier_explorer]: Frontier approach in map: x=10.11, y=-2.97, yaw=3.14, grid route=0.80 m, boundary=154 cells.
+[INFO] [1795515500.343991211] [frontier_explorer]: Reached frontier approach 15.
+[INFO] [1795515502.028905008] [frontier_explorer]: Frontier approach in map: x=10.16, y=-0.42, yaw=2.19, grid route=2.55 m, boundary=5 cells.
+[WARN] [1795515535.351309156] [frontier_explorer]: Approach unavailable (Nav2 208); trying elsewhere.
+[INFO] [1795515536.038814853] [frontier_explorer]: Frontier approach in map: x=9.56, y=1.07, yaw=0.22, grid route=1.95 m, boundary=59 cells.
+[INFO] [1795515553.295263488] [frontier_explorer]: Reached frontier approach 17.
+[INFO] [1795515554.030456852] [frontier_explorer]: Frontier approach in map: x=9.51, y=3.27, yaw=0.11, grid route=2.25 m, boundary=171 cells.
+[INFO] [1795515572.175775780] [frontier_explorer]: Reached frontier approach 18.
+[INFO] [1795515574.043769595] [frontier_explorer]: Frontier approach in map: x=8.26, y=3.27, yaw=3.03, grid route=1.25 m, boundary=38 cells.
+[INFO] [1795515602.296719544] [frontier_explorer]: Reached frontier approach 19.
+[INFO] [1795515604.029191836] [frontier_explorer]: Frontier approach in map: x=7.76, y=3.22, yaw=-1.21, grid route=0.80 m, boundary=13 cells.
+[INFO] [1795515610.343397974] [frontier_explorer]: Reached frontier approach 20.
+[INFO] [1795515612.029206303] [frontier_explorer]: Frontier approach in map: x=7.06, y=3.72, yaw=0.00, grid route=1.40 m, boundary=55 cells.
+[INFO] [1795515633.433657515] [frontier_explorer]: Reached frontier approach 21.
+[INFO] [1795515634.028805999] [frontier_explorer]: Frontier approach in map: x=6.16, y=3.67, yaw=-2.43, grid route=0.85 m, boundary=4 cells.
+[INFO] [1795515641.543984443] [frontier_explorer]: Reached frontier approach 22.
+[INFO] [1795515642.042000171] [frontier_explorer]: Frontier approach in map: x=5.77, y=2.92, yaw=-1.35, grid route=1.20 m, boundary=29 cells.
+[INFO] [1795515652.145956372] [frontier_explorer]: Reached frontier approach 23.
+[INFO] [1795515654.040231057] [frontier_explorer]: Frontier approach in map: x=2.05, y=3.37, yaw=2.43, grid route=3.85 m, boundary=116 cells.
+[INFO] [1795515679.746915023] [frontier_explorer]: Reached frontier approach 24.
+[INFO] [1795515680.041515116] [frontier_explorer]: Frontier approach in map: x=-0.58, y=3.47, yaw=-2.43, grid route=2.90 m, boundary=22 cells.
+[INFO] [1795515695.650643166] [frontier_explorer]: Reached frontier approach 25.
+[INFO] [1795515696.039998509] [frontier_explorer]: Frontier approach in map: x=-1.17, y=3.02, yaw=-1.11, grid route=1.05 m, boundary=6 cells.
+[INFO] [1795515703.846787746] [frontier_explorer]: Reached frontier approach 26.
+[INFO] [1795515704.054681798] [frontier_explorer]: Frontier approach in map: x=-3.27, y=3.67, yaw=-1.57, grid route=3.20 m, boundary=17 cells.
+[INFO] [1795515724.898062697] [frontier_explorer]: Reached frontier approach 27.
+[INFO] [1795515726.043179417] [frontier_explorer]: Frontier approach in map: x=-3.52, y=3.22, yaw=-0.88, grid route=0.70 m, boundary=8 cells.
+[INFO] [1795515798.201930398] [frontier_explorer]: Reached frontier approach 28.
+[INFO] [1795515800.035110140] [frontier_explorer]: Frontier approach in map: x=-3.57, y=2.52, yaw=-0.71, grid route=0.70 m, boundary=21 cells.
+[INFO] [1795515809.301502491] [frontier_explorer]: Reached frontier approach 29.
+[INFO] [1795515810.043879109] [frontier_explorer]: Frontier approach in map: x=-3.60, y=2.02, yaw=0.36, grid route=0.50 m, boundary=6 cells.
+[INFO] [1795515879.359202206] [frontier_explorer]: Reached frontier approach 30.
+[INFO] [1795515880.047697408] [frontier_explorer]: Frontier approach in map: x=-3.60, y=-2.13, yaw=-0.71, grid route=4.15 m, boundary=4 cells.
+[ERROR] [1795515890.201192640] [frontier_explorer]: Nav2 stopped: status=6, error=103, 
+[ros2run]: Process exited with failure 1
