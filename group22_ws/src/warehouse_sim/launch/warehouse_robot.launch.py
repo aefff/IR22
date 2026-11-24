@@ -9,11 +9,12 @@ All files are found through the installed package share directory, so it
 works on any machine (Jazzy/Harmonic or Lyrical/Jetty) without editing.
 """
 import os
+import xml.etree.ElementTree as ET
 
 from ament_index_python.packages import get_package_prefix, get_package_share_directory
 
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, SetEnvironmentVariable
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, OpaqueFunction, SetEnvironmentVariable
 from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import EnvironmentVariable, LaunchConfiguration, PathJoinSubstitution
@@ -33,9 +34,48 @@ def static_tf(child, x, y, z):
     )
 
 
+def spawn_and_bridge(context, world_file, robot_sdf):
+    """Target the SDF world explicitly for spawning and simulation time."""
+    world_name = ET.parse(world_file.perform(context)).getroot().find('world').attrib['name']
+    clock_topic = f'/world/{world_name}/clock'
+
+    # Put the robot into the running world
+    spawn = Node(
+        package='ros_gz_sim',
+        executable='create',
+        arguments=['-world', world_name, '-name', 'warehouse_robot', '-file', robot_sdf,
+                   '-x', LaunchConfiguration('x'),
+                   '-y', LaunchConfiguration('y'),
+                   '-z', '0.0',
+                   '-Y', LaunchConfiguration('yaw')],
+        output='screen',
+    )
+
+    # ]  ROS -> Gazebo,  [  Gazebo -> ROS
+    bridge = Node(
+        package='ros_gz_bridge',
+        executable='parameter_bridge',
+        arguments=[
+            f'{clock_topic}@rosgraph_msgs/msg/Clock[gz.msgs.Clock',
+            '/cmd_vel@geometry_msgs/msg/Twist]gz.msgs.Twist',
+            '/odom@nav_msgs/msg/Odometry[gz.msgs.Odometry',
+            '/tf@tf2_msgs/msg/TFMessage[gz.msgs.Pose_V',
+            '/scan@sensor_msgs/msg/LaserScan[gz.msgs.LaserScan',
+            '/camera/image_raw@sensor_msgs/msg/Image[gz.msgs.Image',
+            '/camera/camera_info@sensor_msgs/msg/CameraInfo[gz.msgs.CameraInfo',
+            '/thermal/image_raw@sensor_msgs/msg/Image[gz.msgs.Image',
+            '/thermal/camera_info@sensor_msgs/msg/CameraInfo[gz.msgs.CameraInfo',
+            '/hazards/discovered@std_msgs/msg/String]gz.msgs.StringMsg'
+        ],
+        remappings=[(clock_topic, '/clock')],
+        parameters=[{'use_sim_time': True}],
+        output='screen',
+    )
+    return [spawn, bridge]
+
+
 def generate_launch_description():
     pkg_share = get_package_share_directory('warehouse_sim')
-    robot_sdf = os.path.join(pkg_share, 'models', 'warehouse_robot', 'model.sdf')
     plugin_prefix = get_package_prefix('warehouse_hazards')
     plugin_dir = os.path.join(plugin_prefix, 'lib')
     
@@ -62,38 +102,6 @@ def generate_launch_description():
         launch_arguments={'gz_args': ['-r ', world]}.items(),
     )
 
-    # Put the robot into the running world
-    spawn = Node(
-        package='ros_gz_sim',
-        executable='create',
-        arguments=['-name', 'warehouse_robot', '-file', robot_sdf,
-                   '-x', LaunchConfiguration('x'),
-                   '-y', LaunchConfiguration('y'),
-                   '-z', '0.0',
-                   '-Y', LaunchConfiguration('yaw')],
-        output='screen',
-    )
-
-    # ]  ROS -> Gazebo,  [  Gazebo -> ROS
-    bridge = Node(
-        package='ros_gz_bridge',
-        executable='parameter_bridge',
-        arguments=[
-            '/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock',
-            '/cmd_vel@geometry_msgs/msg/Twist]gz.msgs.Twist',
-            '/odom@nav_msgs/msg/Odometry[gz.msgs.Odometry',
-            '/tf@tf2_msgs/msg/TFMessage[gz.msgs.Pose_V',
-            '/scan@sensor_msgs/msg/LaserScan[gz.msgs.LaserScan',
-            '/camera/image_raw@sensor_msgs/msg/Image[gz.msgs.Image',
-            '/camera/camera_info@sensor_msgs/msg/CameraInfo[gz.msgs.CameraInfo',
-            '/thermal/image_raw@sensor_msgs/msg/Image[gz.msgs.Image',
-            '/thermal/camera_info@sensor_msgs/msg/CameraInfo[gz.msgs.CameraInfo',
-            '/hazards/discovered@std_msgs/msg/String]gz.msgs.StringMsg'
-        ],
-        parameters=[{'use_sim_time': True}],
-        output='screen',
-    )
-    
     hazard_spawner = Node(
         package='warehouse_sim',
         executable='hazard_spawner',
@@ -147,8 +155,10 @@ def generate_launch_description():
     return LaunchDescription(args + [
         slam,
         gz_sim,
-        spawn,
-        bridge,
+        OpaqueFunction(
+            function=spawn_and_bridge,
+            args=[world, os.path.join(pkg_share, 'models', 'warehouse_robot', 'model.sdf')],
+        ),
         hazard_spawner,
         fire_detection,
         hazard_discovery,
